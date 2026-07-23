@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,14 +8,18 @@
 </head>
 <body>
   <div class="container">
-    <h2>Register</h2>
-    <form>
-      <input type="email" placeholder="Email" required />
-      <input type="password" placeholder="Password" required />
-      <input type="password" placeholder="Confirm Password" required />
-      <button type="submit">Register</button>
+    <h2>Đăng ký</h2>
+    <form id="registerForm">
+      <input type="email" id="registerEmail" placeholder="Email" required />
+      <input type="password" id="registerPassword" placeholder="Mật khẩu" required />
+      <input type="password" id="confirmPassword" placeholder="Xác nhận mật khẩu" required />
+      <button type="submit">Đăng ký</button>
     </form>
+    <p class="link-text">
+      Đã có tài khoản? <a href="login.html">Đăng nhập</a>
+    </p>
   </div>
+
   <script src="../js/app.js"></script>
 </body>
 </html>
