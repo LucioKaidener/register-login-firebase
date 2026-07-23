@@ -50,7 +50,7 @@
   <header class="w-full py-8 flex justify-center bg-transparent" data-purpose="navigation">
     <div class="flex items-center gap-2">
       <!-- Logo -->
-      <img alt="Logo" class="top-brand-logo"
+      <img alt="Logo" class="h-8 w-auto"
         src="https://lh3.googleusercontent.com/aida-public/AB6AXuAPPMeYqxhd_tOdrunBCohw5c37RGhNcm-Mhyty5ZKNawu70AXPo7hH6HheCsK0vWMHwGroBBZt2zueSuLcGDP24g59l4vqL7VZ1wfEjW0TsU92Yds_OE7XG1CTRhb7fh2pKjua9Zp1rWbDZNhVE2FZU7BM40xuOa-jIoa2VpFTdGYT8mfjvc--84NIGZoDnW-UMdB122GKngPr-UqRDda5T3lxsAzBDzooztmXVnicDd8a0dGsOQ8oOr_D9CcsH-z9iUg" />
     </div>
   </header>
@@ -126,35 +126,19 @@
     <!-- END: LoginCard -->
   </main>
   <!-- END: MainContent -->
-  <!-- BEGIN: Footer -->
-  <footer class="page-footer w-full py-8 px-8" data-purpose="main-footer">
-    <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
-      <!-- Left Section: Branding & Copyright -->
-      <div class="flex items-center gap-3">
-        <img alt="Logo small" class="h-6 w-auto object-contain"
-          src="https://lh3.googleusercontent.com/aida-public/AB6AXuDaAAPCdqusi_8cFeLUcDMf35PhV8qMwumUbhignu0-r-QOnWnAmAUXKyXBi_6ecwKJmi4S8r-g9dRr32QnudWlsWUQZslKYNYjQgOUMs1z5J4DM3uX5oa-0lXTJwfJZKVe55IYcTmLqEKlEu9pzod7bR5lI8YhUcN5xSCGAf3lHaiDijeH5n9LVoOYLPCuax2NuQucE3O8TkPekCA2TnI9eyaqwsV2LmPj_OQi-I0XjaJjzxM44qD-tIAP3jCtwdFjsw"
-          style="clip-path: inset(30px 480px 1350px 480px);" />
-        <p class="text-sm font-bold text-on-surface">
-          © 2024 WebDev Studios. <span class="font-normal text-on-surface-variant">Tất cả quyền được bảo lưu.</span>
-        </p>
-      </div>
-      <!-- Right Section: Links -->
-      <nav class="flex items-center gap-8">
-        <a class="text-sm font-semibold text-on-surface-variant hover:text-primary transition-colors" href="#">Điều
-          khoản</a>
-        <a class="text-sm font-semibold text-on-surface-variant hover:text-primary transition-colors" href="#">Bảo
-          mật</a>
-        <a class="text-sm font-semibold text-on-surface-variant hover:text-primary transition-colors" href="#">Liên
-          hệ</a>
-      </nav>
-    </div>
-  </footer>
-  <!-- END: Footer -->
+  <div id="footer-placeholder"></div>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-storage-compat.js"></script>
   <script src="../js/app.js"></script>
+  <script>
+    fetch('/pages/footer.html')
+      .then(response => response.text())
+      .then(data => {
+        document.getElementById('footer-placeholder').innerHTML = data;
+      });
+  </script>
 </body>
 
 </html>

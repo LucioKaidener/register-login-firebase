@@ -203,26 +203,19 @@
     <!-- END: PersonalDetailsForm -->
   </main>
   <!-- END: MainContent -->
-  <!-- BEGIN: Footer -->
-  <footer class="page-footer bg-white py-10 mt-20">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
-      <div class="flex items-center gap-2">
-        <img alt="Logo" class="h-6 w-auto"
-          src="https://lh3.googleusercontent.com/aida-public/AB6AXuDKVwcxGk5WViTs5LMcJ6nfSnlU1q8KMaJOatg2ikqiZBDDmG9Iro2vDVQrGtEpr5_VJ9oSkKyvuFF0U2ILYjdNDy671YpVyjB7-MjEzsrwKngsueSHpjVuXYYlfvd0Pc5w9b_LSnWwWSVO4HCkN83bLvX50LqxioDkt2oNZINsd0Yj_Fxhip_1xGPjbsplCszw02kKuCVIB5s9rxX_wedNKDI0kB59cq6MmQQQ6DcVLImk5_-Wj8KS" />
-        <span class="text-sm font-medium text-slate-500">© 2023 Company Name. Tất cả quyền được bảo lưu.</span>
-      </div>
-      <div class="flex gap-6">
-        <a class="text-sm font-bold text-slate-400 hover:text-primary transition-colors" href="#">Điều khoản dịch vụ</a>
-        <a class="text-sm font-bold text-slate-400 hover:text-primary transition-colors" href="#">Chính sách bảo mật</a>
-      </div>
-    </div>
-  </footer>
-  <!-- END: Footer -->
+  <div id="footer-placeholder"></div>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-storage-compat.js"></script>
   <script src="../js/app.js"></script>
+  <script>
+    fetch('/pages/footer.html')
+      .then(response => response.text())
+      .then(data => {
+        document.getElementById('footer-placeholder').innerHTML = data;
+      });
+  </script>
 </body>
 
 </html>
