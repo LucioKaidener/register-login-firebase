@@ -10,7 +10,8 @@ const firebaseConfig = {
 };
 
 let auth = null;
-let db = null;
+let firestoreDb = null; // Renamed to avoid conflict with global db
+let storage = null; // Keep for now, will remove after confirming no other dependencies
 let useLocalStorageFallback = false;
 
 function hasPlaceholderFirebaseConfig() {
@@ -34,7 +35,8 @@ function initFirebase() {
   }
 
   auth = firebaseSDK.auth();
-  db = firebaseSDK.firestore();
+  firestoreDb = firebaseSDK.firestore(); // Assign to firestoreDb
+  // storage = typeof firebaseSDK.storage === 'function' ? firebaseSDK.storage() : null; // Remove storage initialization
   useLocalStorageFallback = false;
   return true;
 }
@@ -148,6 +150,171 @@ function doPasswordsMatch(password, confirmPassword) {
   return password === confirmPassword;
 }
 
+function getUsernameFromEmail(email) {
+  if (!email || typeof email !== 'string') return '';
+  const parts = email.trim().split('@');
+  return parts[0] || '';
+}
+
+// Hàm chuyển file thành chuỗi Base64
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = (error) => reject(error);
+  });
+}
+
+// Sử dụng hàm này để xem trước ảnh, nó cũng sẽ trả về Base64
+async function getImagePreviewUrl(file) {
+  try {
+    return await fileToBase64(file);
+  } catch (error) {
+    throw new Error('Không thể đọc file ảnh để xem trước.');
+  }
+}
+
+let selectedAvatarFile = null;
+let selectedAvatarPreviewUrl = null;
+
+function setProfileAvatar(url) {
+  const profileAvatar = document.getElementById('profileAvatar');
+  if (profileAvatar && url) {
+    profileAvatar.src = url;
+  }
+}
+
+function setupAvatarUpload() {
+  const avatarInput = document.getElementById('avatarInput');
+  const avatarUploadBtn = document.getElementById('avatarUploadBtn');
+  if (!avatarInput || !avatarUploadBtn) return;
+
+  avatarUploadBtn.addEventListener('click', () => avatarInput.click());
+
+  avatarInput.addEventListener('change', async (event) => {
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) return;
+
+    try {
+      selectedAvatarFile = file;
+      selectedAvatarPreviewUrl = await getImagePreviewUrl(file);
+      setProfileAvatar(selectedAvatarPreviewUrl);
+      console.log('Avatar selected and previewed:', selectedAvatarPreviewUrl);
+
+      // Kiểm tra kích thước file
+      const MAX_AVATAR_SIZE_KB = 200;
+      if (file.size > MAX_AVATAR_SIZE_KB * 1024) {
+        showMessage(`Ảnh quá lớn! Vui lòng chọn ảnh dung lượng dưới ${MAX_AVATAR_SIZE_KB}KB.`, 'error');
+        selectedAvatarFile = null; // Clear selected file
+        selectedAvatarPreviewUrl = null; // Clear preview
+        setProfileAvatar(''); // Clear avatar preview
+        return;
+      }
+
+      // Tự động lưu avatar ngay sau khi chọn
+      await autoSaveAvatarBase64();
+
+    } catch (error) {
+      console.error('Error setting up avatar preview:', error);
+      showMessage('Không thể xem trước ảnh đại diện. Vui lòng thử lại.', 'error');
+    }
+  });
+}
+
+// Hàm mới để tự động lưu avatar dưới dạng Base64
+async function autoSaveAvatarBase64() {
+  console.log('autoSaveAvatarBase64 called');
+  if (!initFirebase()) return;
+
+  const user = auth.currentUser;
+  if (!user) {
+    console.log('No user logged in for auto-save avatar.');
+    showMessage('Vui lòng đăng nhập để lưu ảnh đại diện.', 'error');
+    return;
+  }
+
+  if (selectedAvatarFile) {
+    showMessage('Đang tải lên ảnh đại diện...', 'info');
+    try {
+      const base64Avatar = await fileToBase64(selectedAvatarFile);
+
+      // Cập nhật photoURL trong Firebase Auth (nếu cần, Firebase Auth có giới hạn kích thước)
+      // Tuy nhiên, ưu tiên lưu vào Firestore vì Base64 có thể rất lớn
+      // await user.updateProfile({ photoURL: base64Avatar }); // Có thể bỏ qua nếu chỉ lưu vào Firestore
+
+      // Lưu thẳng vào document của User trong Firestore
+      await saveUserProfileToFirestore(user.uid, {
+        avatar: base64Avatar,
+        updatedAt: window.firebase.firestore.FieldValue.serverTimestamp()
+      });
+
+      showMessage('Ảnh đại diện đã được lưu thành công.', 'success');
+      console.log('Avatar auto-saved (Base64) and Firestore updated.');
+
+      // Cập nhật lại preview URL để đảm bảo hiển thị đúng
+      selectedAvatarPreviewUrl = base64Avatar;
+      setProfileAvatar(base64Avatar);
+
+    } catch (error) {
+      showMessage('Lỗi khi lưu ảnh đại diện.', 'error');
+      console.error('autoSaveAvatarBase64 error:', error);
+    } finally {
+      selectedAvatarFile = null; // Clear after attempt
+      // selectedAvatarPreviewUrl = null; // Giữ lại để hiển thị
+    }
+  } else {
+    console.log('No selected avatar file for auto-save.');
+  }
+}
+
+// Hàm này sẽ được sửa đổi để trả về chuỗi Base64
+async function saveSelectedAvatarForUser() {
+  const user = auth ? auth.currentUser : null;
+  if (useLocalStorageFallback) {
+    const currentUser = getCurrentStorageUser();
+    if (!currentUser) return null;
+
+    const users = getStorageUsers();
+    users[currentUser.id] = {
+      ...currentUser,
+      avatar: selectedAvatarPreviewUrl || currentUser.avatar || null
+    };
+    saveStorageUsers(users);
+    return selectedAvatarPreviewUrl; // Trả về Base64 đã xem trước
+  }
+
+  if (user && selectedAvatarFile) {
+    try {
+      const base64Avatar = await fileToBase64(selectedAvatarFile);
+      // Không cần updateProfile ở đây nếu đã làm trong autoSaveAvatarBase64
+      // hoặc nếu chỉ muốn lưu vào Firestore
+      return base64Avatar;
+    } catch (error) {
+      console.error('Error converting avatar to Base64:', error);
+      throw error;
+    }
+  }
+  console.log('No user or selected avatar file for saveSelectedAvatarForUser.');
+  return null;
+}
+
+function setupPasswordToggle(toggleId, inputId, iconId) {
+  const toggle = document.getElementById(toggleId);
+  const input = document.getElementById(inputId);
+  const icon = document.getElementById(iconId);
+  if (!toggle || !input || !icon) return;
+
+  toggle.addEventListener('click', (event) => {
+    event.preventDefault();
+    const isPasswordVisible = input.type === 'password';
+    input.type = isPasswordVisible ? 'text' : 'password';
+    icon.textContent = isPasswordVisible ? 'visibility_off' : 'visibility';
+    toggle.setAttribute('aria-label', isPasswordVisible ? 'Ẩn mật khẩu' : 'Hiện mật khẩu');
+  });
+}
+
 let registerValidationTimer = null;
 
 function scheduleRegisterValidation() {
@@ -241,6 +408,18 @@ function getFriendlyError(error) {
   }
 }
 
+async function saveUserProfileToFirestore(uid, data) {
+  if (!firestoreDb || !uid) return false; // Use firestoreDb
+
+  try {
+    await firestoreDb.collection('users').doc(uid).set(data, { merge: true }); // Use firestoreDb
+    return true;
+  } catch (error) {
+    console.error('Lỗi khi lưu dữ liệu vào Firestore:', error);
+    throw error;
+  }
+}
+
 function redirectToProfile() {
   window.location.href = '/pages/profile.html';
 }
@@ -249,100 +428,118 @@ function redirectToLogin() {
   window.location.href = '/pages/login.html';
 }
 
-function bindAuthRedirect() {
-  const isAuthPage = window.location.pathname.endsWith('login.html') || window.location.pathname.endsWith('register.html');
+  function bindAuthRedirect() {
+    const isLoginPage = window.location.pathname.endsWith('login.html');
+    const isRegisterPage = window.location.pathname.endsWith('register.html');
+    const isAuthPage = isLoginPage || isRegisterPage;
 
-  if (useLocalStorageFallback) {
-    const currentUser = getCurrentStorageUser();
-    if (currentUser && isAuthPage) {
-      redirectToProfile();
-    }
-    return;
-  }
-
-  if (!auth) return;
-
-  auth.onAuthStateChanged((user) => {
-    if (user && isAuthPage) {
-      redirectToProfile();
-    }
-  });
-}
-
-async function handleRegisterSubmit(event) {
-  event.preventDefault();
-  clearMessage();
-
-  if (!initFirebase()) return;
-
-  const emailInput = document.getElementById('email');
-  const passwordInput = document.getElementById('password');
-  const confirmPasswordInput = document.getElementById('confirm-password');
-
-  const email = emailInput?.value.trim() || '';
-  const password = passwordInput?.value || '';
-  const confirmPassword = confirmPasswordInput?.value || '';
-
-  if (!validateEmail(email)) {
-    showMessage('Email không hợp lệ.', 'error');
-    return;
-  }
-
-  if (!validatePassword(password)) {
-    showMessage('Mật khẩu phải có ít nhất 8 ký tự, gồm chữ hoa, chữ thường và ký tự đặc biệt.', 'error');
-    return;
-  }
-
-  if (password !== confirmPassword) {
-    showMessage('Mật khẩu xác nhận không khớp.', 'error');
-    return;
-  }
-
-  if (useLocalStorageFallback) {
-    const users = getStorageUsers();
-    const existingUser = Object.values(users).find((user) => user.email === email);
-    if (existingUser) {
-      showMessage('Email này đã được sử dụng.', 'error');
+    if (useLocalStorageFallback) {
+      const currentUser = getCurrentStorageUser();
+      if (currentUser && isAuthPage) {
+        redirectToProfile();
+      }
       return;
     }
 
-    const userId = `local-${Date.now()}`;
-    users[userId] = {
-      id: userId,
-      email,
-      password,
-      fullName: '',
-      phone: '',
-      address: ''
-    };
-    saveStorageUsers(users);
-    showMessage('Đăng ký thành công! Đang chuyển tới trang đăng nhập...', 'success');
-    setTimeout(() => redirectToLogin(), 1000);
-    return;
+    if (!auth) return;
+
+    auth.onAuthStateChanged((user) => {
+      if (user && isAuthPage) {
+        // Only redirect to profile if not on the register page.
+        // The register page has its own redirect logic after successful registration.
+        if (!isRegisterPage) {
+          redirectToProfile();
+        }
+      } else if (!user && !isAuthPage) {
+        // If user is not logged in and not on an auth page, redirect to login
+        redirectToLogin();
+      }
+    });
   }
 
-  try {
-    const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-    await db.collection('users').doc(userCredential.user.uid).set({
-      email,
-      fullName: '',
-      phone: '',
-      address: '',
-      createdAt: window.firebase.firestore.FieldValue.serverTimestamp()
-    }, { merge: true });
+  async function handleRegisterSubmit(event) {
+    event.preventDefault();
+    clearMessage();
 
-    showMessage('Đăng ký thành công! Đang chuyển tới trang đăng nhập...', 'success');
-    setTimeout(() => redirectToLogin(), 1000);
-  } catch (error) {
-    showMessage(getFriendlyError(error), 'error');
+    if (!initFirebase()) return;
+
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const confirmPasswordInput = document.getElementById('confirm-password');
+
+    const email = emailInput?.value.trim() || '';
+    const password = passwordInput?.value || '';
+    const confirmPassword = confirmPasswordInput?.value || '';
+
+    if (!validateEmail(email)) {
+      showMessage('Email không hợp lệ.', 'error');
+      return;
+    }
+
+    if (!validatePassword(password)) {
+      showMessage('Mật khẩu phải có ít nhất 8 ký tự, gồm chữ hoa, chữ thường và ký tự đặc biệt.', 'error');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      showMessage('Mật khẩu xác nhận không khớp.', 'error');
+      return;
+    }
+
+    if (useLocalStorageFallback) {
+      const users = getStorageUsers();
+      const existingUser = Object.values(users).find((user) => user.email === email);
+      if (existingUser) {
+        showMessage('Email này đã được sử dụng.', 'error');
+        return;
+      }
+
+      const userId = `local-${Date.now()}`;
+      users[userId] = {
+        id: userId,
+        email,
+        password,
+        fullName: '',
+        phone: '',
+        address: '',
+        avatar: null
+      };
+      saveStorageUsers(users);
+      showMessage('Đăng ký thành công! Đang chuyển tới trang đăng nhập...', 'success');
+      setTimeout(() => redirectToLogin(), 1000);
+      return;
+    }
+
+    try {
+      const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+      const username = getUsernameFromEmail(email);
+
+      await userCredential.user.updateProfile({
+        displayName: username
+      });
+
+      await saveUserProfileToFirestore(userCredential.user.uid, {
+        email,
+        fullName: username,
+        phone: '',
+        address: '',
+        createdAt: window.firebase.firestore.FieldValue.serverTimestamp()
+      });
+
+      await auth.signOut();
+      showMessage('Đăng ký thành công! Vui lòng đăng nhập để tiếp tục.', 'success');
+      setTimeout(() => redirectToLogin(), 1000);
+    } catch (error) {
+      showMessage(getFriendlyError(error), 'error');
+    }
   }
-}
 
 async function handleLoginSubmit(event) {
   event.preventDefault();
   clearMessage();
 
   if (!initFirebase()) return;
+  console.log('handleLoginSubmit called');
 
   const emailInput = document.getElementById('email');
   const passwordInput = document.getElementById('password');
@@ -408,7 +605,8 @@ async function handleProfileSubmit(event) {
       email,
       fullName,
       phone,
-      address
+      address,
+      avatar: selectedAvatarPreviewUrl || currentUser.avatar || null
     };
     saveStorageUsers(users);
     showMessage('Cập nhật hồ sơ thành công.', 'success');
@@ -430,20 +628,43 @@ async function handleProfileSubmit(event) {
   const fullName = `${(firstNameInput?.value || '').trim()} ${(fullNameInput?.value || '').trim()}`.trim();
   const phone = phoneInput?.value.trim() || '';
   const address = addressInput?.value.trim() || '';
-  const email = emailInput?.value.trim() || user.email || '';
+    const email = emailInput?.value.trim() || user.email || '';
 
   try {
-    await db.collection('users').doc(user.uid).set({
+    // Với logic autoSaveAvatarBase64, avatar đã được lưu ngay khi chọn.
+    // Do đó, handleProfileSubmit chỉ cần lưu các thông tin khác.
+    // Nếu có selectedAvatarFile, nó đã được xử lý bởi autoSaveAvatarBase64.
+
+    // Prepare other profile data
+    const updatedUserData = {
       email,
       fullName,
       phone,
       address,
       updatedAt: window.firebase.firestore.FieldValue.serverTimestamp()
-    }, { merge: true });
+    };
+
+    // Nếu avatar đã được cập nhật thông qua autoSaveAvatarBase64,
+    // thì selectedAvatarPreviewUrl sẽ chứa Base64 mới nhất.
+    // Chúng ta cần đảm bảo rằng avatar trong Firestore được cập nhật với giá trị này.
+    // Tuy nhiên, autoSaveAvatarBase64 đã làm điều này.
+    // Nếu người dùng chỉ thay đổi thông tin khác mà không thay đổi avatar,
+    // thì updatedUserData không cần chứa avatar.
+    // Nếu avatar đã được thay đổi, autoSaveAvatarBase64 đã cập nhật Firestore.
+
+    console.log('handleProfileSubmit: Saving updatedUserData to Firestore (excluding avatar, as it\'s auto-saved):', updatedUserData);
+    await saveUserProfileToFirestore(user.uid, updatedUserData);
+
+    // Clear selected avatar state after successful save of other data
+    // (autoSaveAvatarBase64 đã clear selectedAvatarFile, nhưng giữ selectedAvatarPreviewUrl để hiển thị)
+    // selectedAvatarFile = null; // Đã được clear trong autoSaveAvatarBase64
+    // selectedAvatarPreviewUrl = null; // Giữ lại để hiển thị
 
     showMessage('Cập nhật hồ sơ thành công.', 'success');
+    console.log('Profile data saved successfully.');
   } catch (error) {
     showMessage(getFriendlyError(error), 'error');
+    console.error('Error saving profile data:', error);
   }
 }
 
@@ -462,13 +683,27 @@ async function loadProfile() {
     const firstNameInput = document.getElementById('first-name');
     const phoneInput = document.getElementById('phone');
     const addressInput = document.getElementById('address');
+    const profileDisplayName = document.getElementById('profileDisplayName');
+    const profileEmail = document.getElementById('profileEmail');
 
-    if (emailInput) emailInput.value = currentUser.email || '';
+    const email = currentUser.email || '';
+    const username = getUsernameFromEmail(email);
+
+    if (profileDisplayName) profileDisplayName.textContent = username || 'user';
+    if (profileEmail) profileEmail.textContent = email;
+
+    if (profileDisplayName) profileDisplayName.textContent = username || 'user';
+    if (profileEmail) profileEmail.textContent = email;
+    if (emailInput) emailInput.value = email;
     if (phoneInput) phoneInput.value = currentUser.phone || '';
     if (addressInput) addressInput.value = currentUser.address || '';
+    if (currentUser.avatar) {
+      setProfileAvatar(currentUser.avatar);
+      selectedAvatarPreviewUrl = currentUser.avatar;
+    }
 
     if (lastNameInput || firstNameInput) {
-      const fullName = currentUser.fullName || '';
+      const fullName = currentUser.fullName || username;
       const parts = fullName.trim() ? fullName.trim().split(/\s+/) : [];
       const firstName = parts[0] || '';
       const lastName = parts.slice(1).join(' ');
@@ -489,15 +724,29 @@ async function loadProfile() {
     const firstNameInput = document.getElementById('first-name');
     const phoneInput = document.getElementById('phone');
     const addressInput = document.getElementById('address');
+    const profileDisplayName = document.getElementById('profileDisplayName');
+    const profileEmail = document.getElementById('profileEmail');
 
-    if (emailInput) emailInput.value = user.email || '';
+    const email = user.email || '';
+    const username = getUsernameFromEmail(email);
+
+    if (profileDisplayName) profileDisplayName.textContent = username || 'user';
+    if (profileEmail) profileEmail.textContent = email;
+    if (emailInput) emailInput.value = email;
 
     try {
-      const snapshot = await db.collection('users').doc(user.uid).get();
+      const snapshot = await firestoreDb.collection('users').doc(user.uid).get(); // Use firestoreDb
       if (snapshot.exists) {
         const data = snapshot.data() || {};
+        if (data.avatar) {
+          setProfileAvatar(data.avatar);
+          selectedAvatarPreviewUrl = data.avatar; // Cập nhật preview URL
+        } else if (user.photoURL) {
+          setProfileAvatar(user.photoURL);
+          selectedAvatarPreviewUrl = user.photoURL; // Cập nhật preview URL
+        }
         if (lastNameInput || firstNameInput) {
-          const fullName = data.fullName || '';
+          const fullName = data.fullName || username;
           const parts = fullName.trim() ? fullName.trim().split(/\s+/) : [];
           const firstName = parts[0] || '';
           const lastName = parts.slice(1).join(' ');
@@ -506,6 +755,8 @@ async function loadProfile() {
         }
         if (phoneInput) phoneInput.value = data.phone || '';
         if (addressInput) addressInput.value = data.address || '';
+      } else if (user.photoURL) {
+        setProfileAvatar(user.photoURL);
       }
     } catch (error) {
       showMessage(getFriendlyError(error), 'error');
@@ -526,7 +777,7 @@ async function logout() {
   redirectToLogin();
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+function initApp() {
   initFirebase();
 
   const registerForm = document.getElementById('registerForm');
@@ -559,6 +810,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (confirmPasswordInput) {
       confirmPasswordInput.addEventListener('input', scheduleRegisterValidation);
     }
+
+    setupPasswordToggle('registerPasswordToggle', 'password', 'registerPasswordToggleIcon');
+    setupPasswordToggle('confirmPasswordToggle', 'confirm-password', 'confirmPasswordToggleIcon');
+  }
+
+  if (loginForm) {
+    loginForm.addEventListener('submit', handleLoginSubmit);
+    setupPasswordToggle('loginPasswordToggle', 'password', 'loginPasswordToggleIcon');
   }
 
   if (profileForm) {
@@ -569,9 +828,102 @@ document.addEventListener('DOMContentLoaded', () => {
     logoutButton.addEventListener('click', logout);
   }
 
-  if (document.getElementById('profileForm')) {
+  setupAvatarUpload();
+
+  if (profileForm) {
     loadProfile();
+    setupProfileEditing(); // Add this new function call
   }
 
   bindAuthRedirect();
-});
+}
+
+function setupProfileEditing() {
+  const editProfileBtn = document.getElementById('editProfileBtn');
+  const saveProfileBtn = document.getElementById('saveProfileBtn');
+  const editableFields = document.querySelectorAll('[data-editable]');
+
+  let initialProfileData = {}; // To store initial data for cancellation
+
+  function setEditMode(isEditing) {
+    const cancelEditBtn = document.getElementById('cancelEditBtn');
+
+    editableFields.forEach(field => {
+      field.disabled = !isEditing;
+      if (isEditing) {
+        field.classList.remove('disabled:bg-gray-100', 'disabled:text-gray-600', 'disabled:cursor-not-allowed');
+        field.classList.add('input-editable');
+      } else {
+        field.classList.add('disabled:bg-gray-100', 'disabled:text-gray-600', 'disabled:cursor-not-allowed');
+        field.classList.remove('input-editable');
+      }
+    });
+
+    if (isEditing) {
+      editProfileBtn.classList.add('visually-hidden');
+      saveProfileBtn.classList.remove('visually-hidden');
+      cancelEditBtn.classList.remove('visually-hidden'); // Show cancel button
+      // Store current values when entering edit mode
+      editableFields.forEach(field => {
+        initialProfileData[field.id] = field.value;
+      });
+    } else {
+      editProfileBtn.classList.remove('visually-hidden');
+      saveProfileBtn.classList.add('visually-hidden');
+      cancelEditBtn.classList.add('visually-hidden'); // Hide cancel button
+    }
+  }
+
+  function resetProfileFields() {
+    editableFields.forEach(field => {
+      if (initialProfileData[field.id] !== undefined) {
+        field.value = initialProfileData[field.id];
+      }
+    });
+    // Also reset avatar if it was changed but not saved
+    if (selectedAvatarPreviewUrl && initialProfileData['profileAvatarSrc'] && selectedAvatarPreviewUrl !== initialProfileData['profileAvatarSrc']) {
+      setProfileAvatar(initialProfileData['profileAvatarSrc']);
+      selectedAvatarPreviewUrl = initialProfileData['profileAvatarSrc'];
+    }
+    selectedAvatarFile = null; // Clear any pending avatar file
+  }
+
+  if (editProfileBtn) {
+    editProfileBtn.addEventListener('click', () => {
+      // Store current avatar src
+      const profileAvatar = document.getElementById('profileAvatar');
+      if (profileAvatar) {
+        initialProfileData['profileAvatarSrc'] = profileAvatar.src;
+      }
+      setEditMode(true);
+    });
+  }
+
+  const cancelEditBtn = document.getElementById('cancelEditBtn');
+  if (cancelEditBtn) {
+    cancelEditBtn.addEventListener('click', () => {
+      resetProfileFields(); // Restore initial data
+      setEditMode(false); // Exit edit mode
+    });
+  }
+
+  // When the form is submitted (saveProfileBtn is clicked), disable edit mode
+  if (profileForm) {
+    profileForm.addEventListener('submit', (event) => {
+      // The handleProfileSubmit will be called first, then this.
+      // We want to revert to view mode after successful save.
+      // For now, we'll just set it back to view mode.
+      // The actual saving logic is in handleProfileSubmit.
+      setEditMode(false);
+    });
+  }
+
+  // Initialize in view mode
+  setEditMode(false);
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+} else {
+  initApp();
+}
