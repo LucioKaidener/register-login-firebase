@@ -236,7 +236,7 @@ body {
 .field-status {
   position: absolute;
   top: 50%;
-  right: 0.9rem;
+  right: 3rem; /* Adjusted from 0.9rem to 3rem to prevent overlap with toggle button */
   transform: translateY(-50%);
   display: inline-flex;
   align-items: center;
