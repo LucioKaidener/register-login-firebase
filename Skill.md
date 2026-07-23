@@ -1,17 +1,26 @@
 # Skill Notes
 
 ## Project Goal
-Build a website with register, login, and profile features using Firebase.
+Build a complete user authentication flow with registration, login, and profile editing using Firebase.
 
-## Recommended Stack
+## Stack
 - HTML
-- CSS
+- CSS / Tailwind CDN
 - JavaScript
-- Firebase
+- Firebase Authentication + Firestore
 
-## Development Steps
-1. Create basic folder structure.
-2. Build UI for register, login, and profile pages.
-3. Implement form validation.
-4. Connect Firebase Authentication and Firestore.
-5. Test login/register/profile flows.
+## Current Implementation
+- `pages/register.html`, `pages/login.html`, `pages/profile.html`
+- `js/app.js` contains Firebase setup, auth flow, real-time register validation, and profile data loading.
+- Real-time validation on register form for:
+  - valid email format
+  - email uniqueness
+  - password strength
+  - confirm password matching
+- Firebase Hosting configured via `firebase.json`.
+
+## Next Steps
+- Verify Firebase Console settings: Email/Password auth enabled
+- Deploy hosting and test live site
+- Optionally add better user feedback and custom error handling
+

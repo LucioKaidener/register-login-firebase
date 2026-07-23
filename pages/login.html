@@ -1,140 +1,159 @@
 <!DOCTYPE html>
 
-<html lang="vi"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Đăng nhập - WebDev Studios</title>
-<!-- Tailwind CSS CDN -->
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<!-- Google Fonts: Manrope -->
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
-<link rel="stylesheet" href="styles.css"/>
-<!-- Material Symbols -->
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#ff9800',
-                        'primary-dark': '#e68900',
-                        'surface': '#f7f9fb',
-                        'surface-dim': '#d8dadc',
-                        'surface-bright': '#f7f9fb',
-                        'surface-container-lowest': '#ffffff',
-                        'surface-container-low': '#f2f4f6',
-                        'on-surface': '#1a1c1e',
-                        'on-surface-variant': '#43474e',
-                        'outline': '#73777f',
-                        'outline-variant': '#c3c7cf',
-                    },
-                    fontFamily: {
-                        sans: ['Manrope', 'sans-serif'],
-                    },
-                    borderRadius: {
-                        'custom': '8px',
-                    }
-                }
-            }
+<html lang="vi">
+
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>Đăng nhập - WebDev Studios</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <!-- Google Fonts: Manrope -->
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&amp;display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="../css/styles.css" />
+  <!-- Material Symbols -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+    rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#ff9800',
+            'primary-dark': '#e68900',
+            'surface': '#f7f9fb',
+            'surface-dim': '#d8dadc',
+            'surface-bright': '#f7f9fb',
+            'surface-container-lowest': '#ffffff',
+            'surface-container-low': '#f2f4f6',
+            'on-surface': '#1a1c1e',
+            'on-surface-variant': '#43474e',
+            'outline': '#73777f',
+            'outline-variant': '#c3c7cf',
+          },
+          fontFamily: {
+            sans: ['Manrope', 'sans-serif'],
+          },
+          borderRadius: {
+            'custom': '8px',
+          }
         }
-    </script>
-<style data-purpose="custom-layout">
-        body {
-            background-color: #f7f9fb;
-        }
-        .card-shadow {
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-        }
-    </style>
+      }
+    }
+  </script>
 </head>
+
 <body class="page-shell min-h-screen flex flex-col font-sans text-on-surface">
-<!-- BEGIN: TopNavBar -->
-<header class="w-full py-8 flex justify-center bg-transparent" data-purpose="navigation">
-<div class="flex items-center gap-2">
-<!-- Logo -->
-<img alt="Logo" class="h-10 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDvW_iviaV3O1jDT-VoGW69k1soq6WIsrACuOWV5ygNOMxyrw1Q0resHjMYD8MwnzDfiBNdQkYaXuYyilnmCy4Tc6HKmrrmS8DCEwK6mTMhl1MDjPc8CRm7S3iIt6W1VmHI9Tf-ec2vWbCR3G8BYtz89pgtqDyBntcRG1hmsAEupoGMviuCJmrLcnSwCtlFto4_nfdpvH-4-KqPKS--zJaJI9tSnwkH-WEJaIOn2Mt8gJdcCSsLSWHYOmYMdy-pYM4_bQ" style="clip-path: inset(30px 480px 1350px 480px);"/>
-</div>
-</header>
-<!-- END: TopNavBar -->
-<!-- BEGIN: MainContent -->
-<main class="flex-grow flex items-center justify-center px-4 py-12">
-<!-- BEGIN: LoginCard -->
-<div class="auth-card bg-surface-container-lowest p-8 md:p-12 rounded-custom w-full max-w-lg" data-purpose="login-form-container">
-<!-- Header Section inside Card -->
-<div class="text-center mb-10">
-<h1 class="text-3xl font-extrabold text-on-surface mb-2">Chào mừng trở lại</h1>
-<p class="text-on-surface-variant font-medium">Vui lòng đăng nhập để tiếp tục</p>
-</div>
-<form action="#" class="space-y-6" method="POST">
-<!-- Email Input -->
-<div class="space-y-1.5">
-<label class="block text-sm font-bold text-on-surface" for="email">Email</label>
-<div class="relative">
-<div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-<span class="material-symbols-outlined text-outline text-xl">mail</span>
-</div>
-<input class="block w-full pl-11 pr-4 py-3 bg-white border border-outline-variant rounded-custom focus:ring-2 focus:ring-primary focus:border-primary placeholder-outline transition-all" id="email" name="email" placeholder="Nhập địa chỉ email" type="email"/>
-</div>
-</div>
-<!-- Password Input -->
-<div class="space-y-1.5">
-<div class="flex justify-between items-center">
-<label class="block text-sm font-bold text-on-surface" for="password">Mật khẩu</label>
-<a class="text-xs font-semibold text-outline hover:text-primary transition-colors" href="#">Quên mật khẩu?</a>
-</div>
-<div class="relative">
-<div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-<span class="material-symbols-outlined text-outline text-xl">lock</span>
-</div>
-<input class="block w-full pl-11 pr-11 py-3 bg-white border border-outline-variant rounded-custom focus:ring-2 focus:ring-primary focus:border-primary placeholder-outline transition-all" id="password" name="password" placeholder="Nhập mật khẩu" type="password"/>
-<div class="absolute inset-y-0 right-0 pr-4 flex items-center cursor-pointer">
-<span class="material-symbols-outlined text-outline text-xl hover:text-on-surface">visibility</span>
-</div>
-</div>
-</div>
-<!-- Submit Button -->
-<button class="primary-btn w-full flex items-center justify-center gap-2 font-bold py-3.5 px-4 rounded-custom transition-all duration-200 shadow-sm hover:shadow-md active:transform active:scale-[0.99]" type="submit">
-<span>Đăng nhập</span>
-<span class="material-symbols-outlined">arrow_forward</span>
-</button>
-<!-- Divider -->
-<div class="relative py-4">
-<div class="absolute inset-0 flex items-center">
-<div class="w-full border-t border-outline-variant"></div>
-</div>
-<div class="relative flex justify-center text-[10px] font-bold tracking-wider uppercase">
-<span class="bg-surface-container-lowest px-3 text-outline">Hoặc</span>
-</div>
-</div>
-<!-- Footer link inside Card -->
-<div class="text-center">
-<p class="text-sm text-on-surface-variant font-medium">
-                        Chưa có tài khoản? 
-                        <a class="font-bold text-primary hover:underline underline-offset-4" href="#">Đăng ký ngay</a>
-</p>
-</div>
-</form>
-</div>
-<!-- END: LoginCard -->
-</main>
-<!-- END: MainContent -->
-<!-- BEGIN: Footer -->
-<footer class="page-footer w-full py-8 px-8" data-purpose="main-footer">
-<div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
-<!-- Left Section: Branding & Copyright -->
-<div class="flex items-center gap-3">
-<img alt="Logo small" class="h-6 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDaAAPCdqusi_8cFeLUcDMf35PhV8qMwumUbhignu0-r-QOnWnAmAUXKyXBi_6ecwKJmi4S8r-g9dRr32QnudWlsWUQZslKYNYjQgOUMs1z5J4DM3uX5oa-0lXTJwfJZKVe55IYcTmLqEKlEu9pzod7bR5lI8YhUcN5xSCGAf3lHaiDijeH5n9LVoOYLPCuax2NuQucE3O8TkPekCA2TnI9eyaqwsV2LmPj_OQi-I0XjaJjzxM44qD-tIAP3jCtwdFjsw" style="clip-path: inset(30px 480px 1350px 480px);"/>
-<p class="text-sm font-bold text-on-surface">
-                    © 2024 WebDev Studios. <span class="font-normal text-on-surface-variant">Tất cả quyền được bảo lưu.</span>
-</p>
-</div>
-<!-- Right Section: Links -->
-<nav class="flex items-center gap-8">
-<a class="text-sm font-semibold text-on-surface-variant hover:text-primary transition-colors" href="#">Điều khoản</a>
-<a class="text-sm font-semibold text-on-surface-variant hover:text-primary transition-colors" href="#">Bảo mật</a>
-<a class="text-sm font-semibold text-on-surface-variant hover:text-primary transition-colors" href="#">Liên hệ</a>
-</nav>
-</div>
-</footer>
-<!-- END: Footer -->
-</body></html>
+  <!-- BEGIN: TopNavBar -->
+  <header class="w-full py-8 flex justify-center bg-transparent" data-purpose="navigation">
+    <div class="flex items-center gap-2">
+      <!-- Logo -->
+      <img alt="Logo" class="top-brand-logo"
+        src="https://lh3.googleusercontent.com/aida-public/AB6AXuDvW_iviaV3O1jDT-VoGW69k1soq6WIsrACuOWV5ygNOMxyrw1Q0resHjMYD8MwnzDfiBNdQkYaXuYyilnmCy4Tc6HKmrrmS8DCEwK6mTMhl1MDjPc8CRm7S3iIt6W1VmHI9Tf-ec2vWbCR3G8BYtz89pgtqDyBntcRG1hmsAEupoGMviuCJmrLcnSwCtlFto4_nfdpvH-4-KqPKS--zJaJI9tSnwkH-WEJaIOn2Mt8gJdcCSsLSWHYOmYMdy-pYM4_bQ" />
+    </div>
+  </header>
+  <!-- END: TopNavBar -->
+  <!-- BEGIN: MainContent -->
+  <main class="flex-grow flex items-center justify-center px-4 py-12">
+    <!-- BEGIN: LoginCard -->
+    <div class="auth-card bg-surface-container-lowest p-8 md:p-12 rounded-custom w-full max-w-lg"
+      data-purpose="login-form-container">
+      <!-- Header Section inside Card -->
+      <div class="text-center mb-10">
+        <h1 class="text-3xl font-extrabold text-on-surface mb-2">Chào mừng trở lại</h1>
+        <p class="text-on-surface-variant font-medium">Vui lòng đăng nhập để tiếp tục</p>
+      </div>
+      <div id="messageBox" class="message"></div>
+      <form id="loginForm" class="space-y-6">
+        <!-- Email Input -->
+        <div class="space-y-1.5">
+          <label class="block text-sm font-bold text-on-surface" for="email">Email</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+              <span class="material-symbols-outlined text-outline text-xl">mail</span>
+            </div>
+            <input
+              class="block w-full pl-11 pr-4 py-3 bg-white border border-outline-variant rounded-custom focus:ring-2 focus:ring-primary focus:border-primary placeholder-outline transition-all"
+              id="email" name="email" placeholder="Nhập địa chỉ email" type="email" />
+          </div>
+        </div>
+        <!-- Password Input -->
+        <div class="space-y-1.5">
+          <div class="flex justify-between items-center">
+            <label class="block text-sm font-bold text-on-surface" for="password">Mật khẩu</label>
+            <a class="text-xs font-semibold text-outline hover:text-primary transition-colors" href="#">Quên mật
+              khẩu?</a>
+          </div>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+              <span class="material-symbols-outlined text-outline text-xl">lock</span>
+            </div>
+            <input
+              class="block w-full pl-11 pr-11 py-3 bg-white border border-outline-variant rounded-custom focus:ring-2 focus:ring-primary focus:border-primary placeholder-outline transition-all"
+              id="password" name="password" placeholder="Nhập mật khẩu" type="password" />
+            <div class="absolute inset-y-0 right-0 pr-4 flex items-center cursor-pointer">
+              <span class="material-symbols-outlined text-outline text-xl hover:text-on-surface">visibility</span>
+            </div>
+          </div>
+        </div>
+        <!-- Submit Button -->
+        <button
+          class="primary-btn w-full flex items-center justify-center gap-2 font-bold py-3.5 px-4 rounded-custom transition-all duration-200 shadow-sm hover:shadow-md active:transform active:scale-[0.99]"
+          type="submit">
+          <span>Đăng nhập</span>
+          <span class="material-symbols-outlined">arrow_forward</span>
+        </button>
+        <!-- Divider -->
+        <div class="relative py-4">
+          <div class="absolute inset-0 flex items-center">
+            <div class="w-full border-t border-outline-variant"></div>
+          </div>
+          <div class="relative flex justify-center text-[10px] font-bold tracking-wider uppercase">
+            <span class="bg-surface-container-lowest px-3 text-outline">Hoặc</span>
+          </div>
+        </div>
+        <!-- Footer link inside Card -->
+        <div class="text-center">
+          <p class="text-sm text-on-surface-variant font-medium">
+            Chưa có tài khoản?
+            <a class="font-bold text-primary hover:underline underline-offset-4" href="/pages/register.html">Đăng ký ngay</a>
+          </p>
+        </div>
+      </form>
+    </div>
+    <!-- END: LoginCard -->
+  </main>
+  <!-- END: MainContent -->
+  <!-- BEGIN: Footer -->
+  <footer class="page-footer w-full py-8 px-8" data-purpose="main-footer">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+      <!-- Left Section: Branding & Copyright -->
+      <div class="flex items-center gap-3">
+        <img alt="Logo small" class="h-6 w-auto object-contain"
+          src="https://lh3.googleusercontent.com/aida-public/AB6AXuDaAAPCdqusi_8cFeLUcDMf35PhV8qMwumUbhignu0-r-QOnWnAmAUXKyXBi_6ecwKJmi4S8r-g9dRr32QnudWlsWUQZslKYNYjQgOUMs1z5J4DM3uX5oa-0lXTJwfJZKVe55IYcTmLqEKlEu9pzod7bR5lI8YhUcN5xSCGAf3lHaiDijeH5n9LVoOYLPCuax2NuQucE3O8TkPekCA2TnI9eyaqwsV2LmPj_OQi-I0XjaJjzxM44qD-tIAP3jCtwdFjsw"
+          style="clip-path: inset(30px 480px 1350px 480px);" />
+        <p class="text-sm font-bold text-on-surface">
+          © 2024 WebDev Studios. <span class="font-normal text-on-surface-variant">Tất cả quyền được bảo lưu.</span>
+        </p>
+      </div>
+      <!-- Right Section: Links -->
+      <nav class="flex items-center gap-8">
+        <a class="text-sm font-semibold text-on-surface-variant hover:text-primary transition-colors" href="#">Điều
+          khoản</a>
+        <a class="text-sm font-semibold text-on-surface-variant hover:text-primary transition-colors" href="#">Bảo
+          mật</a>
+        <a class="text-sm font-semibold text-on-surface-variant hover:text-primary transition-colors" href="#">Liên
+          hệ</a>
+      </nav>
+    </div>
+  </footer>
+  <!-- END: Footer -->
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  <script src="../js/app.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,35 @@
+{
+  "firestore": {
+    "database": "(default)",
+    "location": "asia-east1",
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "hosting": {
+    "site": "register-login-firebase-d5f28-1f8f0",
+    "public": ".",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**",
+      "public/index.html"
+    ],
+    "rewrites": [
+      {
+        "source": "/",
+        "destination": "/pages/login.html"
+      },
+      {
+        "source": "/register.html",
+        "destination": "/pages/register.html"
+      },
+      {
+        "source": "/profile.html",
+        "destination": "/pages/profile.html"
+      }
+    ]
+  },
+  "auth": {
+    "providers": {}
+  }
+}
