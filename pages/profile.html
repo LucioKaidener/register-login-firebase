@@ -1,20 +1,192 @@
 <!DOCTYPE html>
-<html lang="vi">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Profile</title>
-  <link rel="stylesheet" href="../css/styles.css" />
-</head>
-<body>
-  <div class="container">
-    <h2>Thông tin hồ sơ</h2>
-    <div id="profileInfo">
-      <p>Đang tải thông tin...</p>
-    </div>
-    <button id="logoutBtn">Đăng xuất</button>
-  </div>
 
-  <script src="../js/app.js"></script>
-</body>
-</html>
+<html lang="vi"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Hồ sơ cá nhân - Profile Page</title>
+<!-- Tailwind CSS v3 CDN with Plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="styles.css"/>
+<script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#fff7ed',
+                            100: '#ffedd5',
+                            200: '#fed7aa',
+                            300: '#fdba74',
+                            400: '#fb923c',
+                            500: '#f97316',
+                            600: '#ea580c',
+                            700: '#c2410c',
+                            800: '#9a3412',
+                            900: '#7c2d12',
+                            DEFAULT: '#ff9800',
+                        },
+                        surface: {
+                            DEFAULT: '#f7f9fb',
+                            dim: '#d8dadc',
+                            bright: '#f7f9fb',
+                            'container-lowest': '#ffffff',
+                            'container-low': '#f2f4f6',
+                            'container': '#eceef0',
+                            'container-high': '#e6e8ea',
+                            'container-highest': '#e0e2e4',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Manrope', 'sans-serif'],
+                    },
+                    borderRadius: {
+                        'none': '0',
+                        'sm': '0.125rem',
+                        DEFAULT: '8px',
+                        'md': '0.375rem',
+                        'lg': '0.5rem',
+                        'xl': '0.75rem',
+                        '2xl': '1rem',
+                        '3xl': '1.5rem',
+                        'full': '9999px',
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .profile-header-gradient {
+            background: linear-gradient(135deg, #ffffff 0%, #fff7ed 100%);
+        }
+        .material-symbols-outlined {
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body class="page-shell bg-surface text-slate-900 font-sans">
+<!-- BEGIN: TopNavBar -->
+<header class="bg-white border-b border-surface-container-high sticky top-0 z-50">
+<nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+<!-- Logo Container -->
+<div class="flex-shrink-0 flex items-center">
+<img alt="Logo" class="h-8 w-auto" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBjCeKLtN-aCSiTJc38WOmQ7TkF5-G8VlXtskTyJYoW9dQWZ8ItcdZUf5E5k2tUtzBztgTE1bAbJ_zNnJgaxJEEhC74uAyM5gh1MhbEMV3_iTHe6x_B94Qq1Njc7g7wpj8irIhNeMMEVY0MBnq5q2Hfrqg-kvRBrrrq4s8R94SaI8Z8s79QzAnlKV9MNmlsy3bhPPhF6VJfLF0A-JWI-XufAHlTRZzT4DqNSsJphCuKw8wY5--tcS1t"/>
+</div>
+<!-- Navigation Links -->
+<div class="hidden md:flex space-x-8">
+<a class="text-sm font-semibold text-slate-600 hover:text-primary transition-colors" href="#">Trang chủ</a>
+<a class="text-sm font-semibold text-slate-600 hover:text-primary transition-colors" href="#">Dịch vụ</a>
+<a class="text-sm font-semibold text-slate-600 hover:text-primary transition-colors" href="#">Hỗ trợ</a>
+</div>
+<!-- User Action -->
+<div class="flex items-center">
+<button class="flex items-center gap-2 px-4 py-2 text-sm font-bold text-slate-700 bg-surface-container-low rounded hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined">logout</span>
+                Đăng xuất
+            </button>
+</div>
+</nav>
+</header>
+<!-- END: TopNavBar -->
+<!-- BEGIN: MainContent -->
+<main class="max-w-4xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
+<!-- BEGIN: UserOverviewCard -->
+<section class="profile-header-gradient bg-white rounded-2xl shadow-sm border border-orange-50 p-6 md:p-8 mb-8" data-purpose="user-overview">
+<div class="flex flex-col md:flex-row items-center md:items-start gap-6">
+<!-- Profile Picture -->
+<div class="relative">
+<img alt="User Avatar" class="w-32 h-32 rounded-full object-cover border-4 border-white shadow-md" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCjqdDk-kgU8mVFZN95KrdXUvKvVdZUV2pXGJIbFMT06J1Xek6dbRk03GM0zBQvN3c-0i8RnBx6tZH1HSk6cXTm86rvO7ka346Z0rtgRhluCaqhzqqEhI2X8OOSkIw0DB9Mt7q0_83NMcJmRAqUTDSLQ9hMxu6UeednRQFJ78p1DlRAmbnfWY3rfcleldbfYTG1JZ7duW2eAi4kBE79EMHztC52dEZytDfnXYL6LuvS1pPiGY8H6VxtCGoQbUK3mICD8w" style="object-position: center top;"/>
+</div>
+<!-- Profile Meta Info -->
+<div class="flex-1 text-center md:text-left">
+<h1 class="text-3xl font-extrabold text-slate-900 mb-1">baochinhvus</h1>
+<p class="text-slate-500 font-medium mb-4">baochinhvus@gmail.com</p>
+<!-- Verification Badge -->
+<div class="inline-flex items-center gap-2 px-3 py-1 bg-white border border-slate-200 rounded-full shadow-sm">
+<span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+<span class="text-xs font-bold text-slate-600">Tài khoản đã xác thực</span>
+</div>
+</div>
+<!-- Edit Profile Button -->
+<div class="mt-4 md:mt-0">
+<button class="flex items-center gap-2 px-6 py-2 border-2 border-primary text-primary rounded font-bold hover:bg-primary-50 transition-all">
+<span class="material-symbols-outlined">edit</span>
+                    Chỉnh sửa
+                </button>
+</div>
+</div>
+</section>
+<!-- END: UserOverviewCard -->
+<!-- BEGIN: PersonalDetailsForm -->
+<section class="auth-card bg-white rounded-2xl p-6 md:p-10" data-purpose="personal-details">
+<h2 class="text-xl font-extrabold text-slate-900 mb-8 border-b border-surface-container-low pb-4">Thông tin cá nhân</h2>
+<form class="space-y-6">
+<!-- Row: First Name & Last Name -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="space-y-2">
+<label class="block text-sm font-bold text-slate-700" for="last-name">Họ và tên đệm</label>
+<input class="w-full bg-surface-container-lowest border-surface-container-high rounded py-3 focus:ring-2 focus:ring-primary focus:border-primary placeholder-slate-400 text-sm font-medium" id="last-name" placeholder="VD: Nguyễn Văn" type="text"/>
+</div>
+<div class="space-y-2">
+<label class="block text-sm font-bold text-slate-700" for="first-name">Tên</label>
+<input class="w-full bg-surface-container-lowest border-surface-container-high rounded py-3 focus:ring-2 focus:ring-primary focus:border-primary placeholder-slate-400 text-sm font-medium" id="first-name" placeholder="VD: A" type="text"/>
+</div>
+</div>
+<!-- Row: Email & Phone -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="space-y-2">
+<label class="block text-sm font-bold text-slate-700" for="email">Email</label>
+<div class="relative">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-slate-400">mail</span>
+</div>
+<input class="w-full pl-10 bg-surface-container-lowest border-surface-container-high rounded py-3 focus:ring-2 focus:ring-primary focus:border-primary text-slate-600 text-sm font-medium" id="email" type="email" value="baochinhvus@gmail.com"/>
+</div>
+</div>
+<div class="space-y-2">
+<label class="block text-sm font-bold text-slate-700" for="phone">Số điện thoại</label>
+<div class="relative">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-slate-400">call</span>
+</div>
+<input class="w-full pl-10 bg-surface-container-lowest border-surface-container-high rounded py-3 focus:ring-2 focus:ring-primary focus:border-primary placeholder-slate-400 text-sm font-medium" id="phone" placeholder="+84 912 345 678" type="tel"/>
+</div>
+</div>
+</div>
+<!-- Row: Address -->
+<div class="space-y-2">
+<label class="block text-sm font-bold text-slate-700" for="address">Địa chỉ</label>
+<div class="relative">
+<div class="absolute top-3 left-3 flex items-start pointer-events-none">
+<span class="material-symbols-outlined text-slate-400">location_on</span>
+</div>
+<textarea class="w-full pl-10 bg-surface-container-lowest border-surface-container-high rounded py-3 focus:ring-2 focus:ring-primary focus:border-primary placeholder-slate-400 text-sm font-medium resize-none" id="address" placeholder="Nhập địa chỉ của bạn" rows="4"></textarea>
+</div>
+</div>
+<!-- Submit Button (Hidden as per original source but kept for structure) -->
+<div class="pt-4 hidden">
+<button class="w-full md:w-auto px-8 py-3 bg-primary text-white font-extrabold rounded hover:bg-orange-600 transition-colors" type="submit">
+                    Lưu thay đổi
+                </button>
+</div>
+</form>
+</section>
+<!-- END: PersonalDetailsForm -->
+</main>
+<!-- END: MainContent -->
+<!-- BEGIN: Footer -->
+<footer class="page-footer bg-white py-10 mt-20">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
+<div class="flex items-center gap-2">
+<img alt="Logo" class="h-6 w-auto" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDKVwcxGk5WViTs5LMcJ6nfSnlU1q8KMaJOatg2ikqiZBDDmG9Iro2vDVQrGtEpr5_VJ9oSkKyvuFF0U2ILYjdNDy671YpVyjB7-MjEzsrwKngsueSHpjVuXYYlfvd0Pc5w9b_LSnWwWSVO4HCkN83bLvX50LqxioDkt2oNZINsd0Yj_Fxhip_1xGPjbsplCszw02kKuCVIB5s9rxX_wedNKDI0kB59cq6MmQQQ6DcVLImk5_-Wj8KS"/>
+<span class="text-sm font-medium text-slate-500">© 2023 Company Name. Tất cả quyền được bảo lưu.</span>
+</div>
+<div class="flex gap-6">
+<a class="text-sm font-bold text-slate-400 hover:text-primary transition-colors" href="#">Điều khoản dịch vụ</a>
+<a class="text-sm font-bold text-slate-400 hover:text-primary transition-colors" href="#">Chính sách bảo mật</a>
+</div>
+</div>
+</footer>
+<!-- END: Footer -->
+</body></html>
